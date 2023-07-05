@@ -1,0 +1,101 @@
+﻿@model IEnumerable<SuperBowlWeb.Models.Jeu>
+
+@{
+    ViewData["Title"] = "Index";
+    bool isMatchDone = false;
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Statut
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EquipeA)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EquipeB)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateRencontre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HeureDebut)
+            </th>            
+            @{
+                if (isMatchDone)
+                {                    
+                    <th>
+                        @Html.DisplayNameFor(model => model.HeureFin)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ScoreEquipeA)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ScoreEquipeB)
+                    </th>
+                    <th>
+                        Gagnant
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Commentaires)
+                    </th>
+                }
+            }           
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                    A Venir <i class=" fa-duotone fa-check"/>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EquipeA.Nom)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EquipeB.Nom)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateRencontre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HeureDebut)
+            </td>
+                
+            @{
+                if (isMatchDone)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.HeureFin);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ScoreEquipeA)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ScoreEquipeB)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EquipeGagnante)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Commentaires)
+                    </td>
+                }
+             }
+            <td>
+                <a asp-action="Parier" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
