@@ -1,6 +1,5 @@
 import axios, {isCancel, AxiosError, AxiosResponse} from 'axios';
 import { router } from '../Routes/Routes';
-import { toast } from 'react-toastify';
 import { request } from 'http';
 import Jeu from '../../Modele/Jeu';
 import Utilisateur from '../../Modele/Utilisateur';
@@ -8,6 +7,7 @@ import Equipe from '../../Modele/Equipe';
 import Pari from '../../Modele/Pari';
 import PariDTO from '../../Modele/PariDTO';
 import UserDTO from '../../Modele/UserDTO';
+import { toast } from 'react-toastify';
 
 enum ErrorCode{
     badRequest=400,
@@ -19,7 +19,7 @@ enum ErrorCode{
 axios.defaults.baseURL="https://localhost:7526/api";
 
 axios.interceptors.response.use(
-    response=>
+    (    response: any)=>
     {
         // toast.info("en cours de chargement");
         return response;
@@ -77,8 +77,8 @@ axios.interceptors.response.use(
         details:(id:string) => requests.get<Utilisateur>(`/users/details/${id}`),
         login:(user:Utilisateur) => requests.post<UserDTO>("/login",user),
         register:(user:Utilisateur) => requests.post<UserDTO>("/register",user),
-        put:(user:Utilisateur) => requests.put<Utilisateur>(`/update/${user.id}`,user),
-        del:(id:string) => requests.del<void>(`/jeu/${id}`)
+        put:(user:Utilisateur) => requests.put<UserDTO>(`/update/${user.username}`,user),
+        currentUser:() => requests.get<UserDTO>(`/currentuser/`)
     }
 
     const joueurs = {
