@@ -1,7 +1,8 @@
 export default interface UserDTO {
-  Nom: string;
-  Prenom: string;
-  Email: string;
-  Token: string;
-  Role: number;
+  username:string;
+  nom: string;
+  prenom: string;
+  email: string;
+  token: string;
+  role: number;
 }

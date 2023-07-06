@@ -8,6 +8,13 @@ namespace SuperBowlWeb.Services
 {
     public class TokenService
     {
+        private readonly IConfiguration _config;
+
+        public TokenService(IConfiguration config)
+        {
+            _config = config;
+        }
+
         public string CreateToken(Utilisateur user)
         {
             var claims = new List<Claim>
@@ -16,7 +23,7 @@ namespace SuperBowlWeb.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Email, user.Email),
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Cle tres tres privee a modifier en prod"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["TokenKey"]));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

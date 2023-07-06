@@ -4,8 +4,10 @@ using SuperBowlWeb.Data;
 using AutoMapper;
 using SuperBowlWeb.Models;
 using SuperBowlWeb.Controllers;
-using SuperBowlWeb.Controllers.Extensions;
 using Microsoft.AspNetCore.Identity;
+using SuperBowlWeb.Extensions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,11 @@ builder.Services.AddDbContext<SuperBowlWebContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 //Swagger pour un compte rendu des API 
 //builder.Services.AddSwa();
-
+builder.Services.AddControllers(opt => {
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+}
+);
 //configuration de CORS 
 builder.Services.AddCors(opt =>
 {
@@ -53,6 +59,7 @@ app.UseStaticFiles();
 app.MapRazorPages();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 

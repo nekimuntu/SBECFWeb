@@ -16,7 +16,7 @@ npm install --save typescript @types/node @types/react @types/react-dom @types/j
 
 4 Installer module pour acceder aux API : Axios 
 > npm install axios
-
+> npm install --save react-toastify
 
 5 Pour la gestion des formulaires (login, register, mise ...) j installe Formik 
 >npm install formik --save

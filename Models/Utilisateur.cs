@@ -10,10 +10,6 @@ namespace SuperBowlWeb.Models
 
         public string Prenom { get; set; }
 
-        public bool? RoleVisiteur { get; set; }
-        public bool? RoleUtilisateur { get; set; }
-
-        public bool? RoleCommentateur { get; set; }
-        public bool? RoleAdmin { get; set; }
+        public int Role { get; set; }
     }
 }

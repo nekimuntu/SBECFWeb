@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,96 +8,92 @@ using Microsoft.EntityFrameworkCore;
 using SuperBowlWeb.Controllers.DTO;
 using SuperBowlWeb.Data;
 using SuperBowlWeb.Models;
+using SuperBowlWeb.Services;
+using System.Security.Claims;
+using System.Security.Permissions;
 
 namespace SuperBowlWeb.Controllers
 {
+    
     [ApiController]
     [Route("/api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly Microsoft.AspNetCore.Identity.UserManager<Utilisateur> _context;
+        private readonly TokenService _tokenService;
+        private readonly IMapper _mapper;
 
-        public UsersController(Microsoft.AspNetCore.Identity.UserManager<Utilisateur> context)
+        public UsersController(Microsoft.AspNetCore.Identity.UserManager<Utilisateur> context, TokenService tokenService,IMapper mapper)
         {
             _context = context;
+            _tokenService = tokenService;
+            _mapper = mapper;
         }
 
+        [Authorize]
+        [HttpGet]
+        [Route("/api/currentuser")]
+        public async Task<ActionResult<UserDTO>> GetCurrentUser() {
+            var user = await _context.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));           
+            UserDTO userDto = CreateUserDto(user);
+            return (userDto);
+        }
+
+        [AllowAnonymous]
         //Login 
         [HttpPost]
         [Route("/api/login")]
-        public async Task<IActionResult> Login(LoginDTO userDto)
+        
+        public async Task<ActionResult<UserDTO>> Login(LoginDTO userDto)
         {
-            if(_context.FindByEmailAsync(userDto.Email) == null) {
+            if (_context.FindByEmailAsync(userDto.Email) == null)
+            {
                 return Unauthorized("Aucun utilisateur");
             }
             var user = await _context.FindByEmailAsync(userDto.Email);
-            var result = await _context.CheckPasswordAsync(user,userDto.Password);
-            if(result == false)
+            var result = await _context.CheckPasswordAsync(user, userDto.Password);
+            if (result == false)
             {
                 return Unauthorized();
             }
 
-            var retour = new UserDTO { 
-                            Username=user.UserName,
-                            Nom = user.Nom,
-                            Prenom = user.Prenom,
-                            Email = user.Email,
-                            Role = 0,
-                            Token = "this is the token"
-            };
-            if (user.RoleAdmin.HasValue)
-                retour.Role = 3;
-            if (user.RoleCommentateur.HasValue)
-                retour.Role = 2;
-            if (user.RoleUtilisateur.HasValue)
-                retour.Role = 1;
+            UserDTO retour = CreateUserDto(user);
 
             return Ok(retour);
         }
 
-
         // POST:Creer un utilisateur
+        [AllowAnonymous]
         [HttpPost]
         [Route("/api/register")]
-        public async Task<IActionResult> Register(RegisterDTO userRegister)
+        public async Task<ActionResult<UserDTO>> Register(RegisterDTO userRegister)
         {
-            if (_context.FindByEmailAsync(userRegister.Email) != null)
+            if (await _context.Users.AnyAsync(x=>x.Email==userRegister.Email) || await _context.Users.AnyAsync(x=>x.UserName==userRegister.UserName))
             {
                 return Unauthorized("Utilisateur deja enregistre");
             }
             var user = new Utilisateur
             {
+                UserName = userRegister.UserName,
                 Nom = userRegister.Nom,
                 Prenom = userRegister.Prenom,
                 Email = userRegister.Email,
+                Role = userRegister.Role
             };
-            if (userRegister.Role==3)
-                user.RoleAdmin =true;
-            if (userRegister.Role == 2)
-                user.RoleCommentateur = true;
-            if (userRegister.Role == 1)
-                user.RoleUtilisateur = true;
+           
 
             var result = await _context.CreateAsync(user, userRegister.Password);
             if (result.Succeeded == false)
             {
-                return Unauthorized(result.Errors);
+                return BadRequest("Probleme lors de la creation du compte. "+result.Errors);
             }
-            var retour = new UserDTO
-            {
-                Username = user.UserName,
-                Nom = user.Nom,
-                Prenom = user.Prenom,
-                Email = user.Email,
-                Role = userRegister.Role,
-                Token = "this is the token"
-            };
+            var retour = CreateUserDto(user);
             return Ok(retour);
         }
 
         [HttpPut]
         [Route("/api/update")] //mise a jour
-        public async Task<IActionResult> Update(UserDTO userDto)
+        public async Task<ActionResult<UserDTO>> Update(UserDTO userDto)
         {
             if (_context.FindByEmailAsync(userDto.Email) != null)
             {
@@ -103,12 +101,6 @@ namespace SuperBowlWeb.Controllers
             }
             var user = await _context.FindByEmailAsync(userDto.Email);
             
-            if (userDto.Role == 3)
-                user.RoleAdmin = true;
-            if (userDto.Role == 2)
-                user.RoleCommentateur = true;
-            if (userDto.Role == 1)
-                user.RoleUtilisateur = true;
 
             var result = await _context.UpdateAsync(user);
             if (result.Succeeded == false)
@@ -119,25 +111,36 @@ namespace SuperBowlWeb.Controllers
             return Ok(userDto);
         }
         // GET: Liste des utilisateurs
-        public async Task<IActionResult> Index()
+        
+        public async Task<ActionResult<List<Utilisateur>>> Index()
         {
             var users = await _context.Users.ToListAsync();
             return Ok(users);
         }
 
         // GET: Recuperer les details d un utilisateur
-        [HttpGet("{id}")]
-        [Route("api/[Controller]/details/{id}")]
-        public async Task<IActionResult> Details(string username)
+        [HttpGet("{username}")]
+        //[Route("api/[Controller]/details/{username}")] cette route ne fonctionne pas ...
+        public async Task<ActionResult<UserDTO>> Details(string username)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x=>x.UserName== username);
             if (user == null)
             {
                 return BadRequest("Aucun utilisateur avec cet email");
             }
-            return Ok(user);
+            var retour = CreateUserDto(user);
+
+            return Ok(retour);
         }
 
+        private UserDTO CreateUserDto(Utilisateur user)
+        {
+            var mapper = _mapper.ConfigurationProvider.CreateMapper();
+            UserDTO userDto = mapper.Map<UserDTO>(user);
+            userDto.Token = _tokenService.CreateToken(user);
+
+            return userDto;
+        }
 
         // DELETE: supprimer un utilisateur
         [HttpDelete]

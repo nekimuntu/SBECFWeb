@@ -12,6 +12,6 @@
 
         public int? EquipeId { get; set; }
         
-        public Pays Pays { get; set; }
+        public string Pays { get; set; }
     }
 }
