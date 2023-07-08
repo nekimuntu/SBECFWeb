@@ -4,6 +4,7 @@ import NotFound from "../Error/NotFound";
 import DetailJeu from "../../Composants/Jeu/DetailJeu";
 import ListJeux from "../../Composants/Jeu/ListJeux";
 import LoginForm from "../../Composants/Form/LoginForm";
+import MySpaceDashboard from "../../Composants/Users/MySpaceDashboard";
 
 
 export const routes:RouteObject[]=[
@@ -14,6 +15,7 @@ export const routes:RouteObject[]=[
             {path:"/MatchDetails/:id",element:<DetailJeu/>},
             {path:"/TousLesMatch",element:<ListJeux jeuDuJour={false} />},
             {path:"/Login",element:<LoginForm />},
+            {path:"/myspace",element:<MySpaceDashboard />},
             {path:"not-found/",element:<NotFound/>},
         ],        
     }

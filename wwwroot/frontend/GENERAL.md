@@ -26,6 +26,10 @@ npm install --save typescript @types/node @types/react @types/react-dom @types/j
 Pour la gestion des composants UI 
 >  npm install semantic-ui-react semantic-ui-css
 
-6
+7
 pour l enregistrement des Paris je passe par un PariDTO qui n'a pas d'Id 
-en effet Identity etant 
+en effet j ai cree la bdd avec identity autoincrement ON
+
+8
+Creation du graphique avec RECHART.JS  https://recharts.org/en-US/guide
+> npm install recharts

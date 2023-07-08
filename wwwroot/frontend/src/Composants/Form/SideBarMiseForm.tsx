@@ -1,5 +1,5 @@
 import { observer } from "mobx-react"
-import { Button, Checkbox, CheckboxProps, Form, Header, Label, Radio, Segment } from "semantic-ui-react"
+import { Button, Checkbox, CheckboxProps, Container, Form, Header, Label, Radio, Segment } from "semantic-ui-react"
 import * as Yup from 'yup'
 import MyTextInput from "../Commun/MyTextInput"
 import { Field, Formik } from "formik"
@@ -21,9 +21,15 @@ interface Props {
 }
 
 export default observer(function SideBarMiseForm(props: Props) {
-    const { pariStore, modalStore,usersStore } = useStore();
+    const { pariStore, modalStore, usersStore } = useStore();
     const { jeu, equipes, pariId } = { ...props }
 
+    useEffect(() => {
+        if (usersStore.isLoggedIn)
+            pariStore.getPariByMatch(jeu.id, usersStore.user?.email!);
+        if (!pariStore.firstPari)
+            setPari(pariStore.lePari!)
+    }, [pariStore, pariStore.firstPari]);
 
     const [statePari, setPari] = useState<Pari>(
         {
@@ -40,12 +46,7 @@ export default observer(function SideBarMiseForm(props: Props) {
         }
     );
 
-    useEffect(() => {
-        if(usersStore.isLoggedIn)
-            pariStore.getPariByMatch(jeu.id,usersStore.user?.email!);
-        if (!pariStore.firstPari)
-            setPari(pariStore.lePari!)
-    }, [pariStore, pariStore.firstPari]);
+   
 
     const validationSchema = Yup.object({
         montantMise: Yup.number().min(1, "la mise doit etre superieur a 1 euro").required("Entrez un chiffre"),
@@ -68,7 +69,7 @@ export default observer(function SideBarMiseForm(props: Props) {
         }
         // console.log(pariDto);
         if (!boxIsSelected) {
-            
+
             toast.warning("Veuillez selectionner une equipe");
             // modalStore.openModal(<NotValidated composant={"Equipe"} />)
         }
@@ -76,14 +77,13 @@ export default observer(function SideBarMiseForm(props: Props) {
         if (confirm("Confirmer la mise?")) {
             if (pariStore.firstPari) {
                 pariStore.setSubmit(true);
-                pariStore.savePari(undefined,pariDto).catch(err=>toast.error(err));
+                pariStore.savePari(undefined, pariDto).catch(err => toast.error(err));
             }
         }
-        
     }
 
     return (<>
-        
+
         <Segment inverted>
             <Header content="Miser sur votre equipe" />
             <Formik
@@ -105,11 +105,13 @@ export default observer(function SideBarMiseForm(props: Props) {
                             ? (<Label basic color='red'>{errors.equipeId}</Label>)
                             : null
                         }
-                        <Button disabled={!isValid || !dirty}
-                            loading={pariStore.loading}
-                            positive type='submit' >
-                            Valider
-                        </Button>
+                        <Container style={{ marginTop: '2em' }}>
+                            <Button disabled={!isValid || !dirty}
+                                loading={pariStore.loading}
+                                positive type='submit' >
+                                Parier
+                            </Button>
+                        </Container>
                     </Form>)}
             </Formik>
         </Segment>

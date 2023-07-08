@@ -15,6 +15,7 @@ export default observer(function RegisterForm() {
         username: "",
         email: "",
         password: "",
+        role:1,
         error: null,
 
     }
