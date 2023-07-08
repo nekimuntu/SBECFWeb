@@ -12,6 +12,7 @@ using System.ComponentModel;
 
 namespace SuperBowlWeb.Controllers
 {
+    
     public class JeuxController : BaseApiController
     {
         private readonly SuperBowlWebContext _context;
@@ -22,11 +23,12 @@ namespace SuperBowlWeb.Controllers
             _context = context;
             _mapper = mapper;
         }
+        [AllowAnonymous]
         // GET: Jeux        
         [HttpGet]
         public async Task<IActionResult> List()
         {
-            
+            var rowsAffected = await _context.Database.ExecuteSqlAsync($"exec changeStatusTable;");
             var superBowlWebContext = await _context.Jeux.Include(m => m.EquipeA).Include(m => m.EquipeB).ToListAsync();
             if (superBowlWebContext == null)
             {
@@ -36,6 +38,7 @@ namespace SuperBowlWeb.Controllers
 
         }
 
+        [AllowAnonymous]
         [HttpGet]
         [Route("dujour")]
         public async Task<IActionResult> ListMatchDuJour()
@@ -53,17 +56,18 @@ namespace SuperBowlWeb.Controllers
             }
             return Ok(superBowlWebContext);
         }
-        [Authorize]
+        [AllowAnonymous]
         // Get by id 
         [HttpGet("{id}")]
         public async Task<IActionResult> Details(int id)
         {
             var jeuDetails = await _context.Jeux
-                                            .ProjectTo<Jeu>(_mapper.ConfigurationProvider)
+                                            .Include(x=>x.EquipeA.Joueurs)
+                                            .Include(x => x.EquipeB.Joueurs)
                                             .FirstOrDefaultAsync(x => x.Id == id);
             if (jeuDetails == null)
             {
-                return NotFound("No entity found in DB ??");
+                return BadRequest("!! Aucun match trouve !!");
             }
             return Ok(jeuDetails);
         }

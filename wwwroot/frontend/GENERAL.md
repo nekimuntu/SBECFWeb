@@ -23,5 +23,9 @@ npm install --save typescript @types/node @types/react @types/react-dom @types/j
 >npm install yup --save
 
 6
+Pour la gestion des composants UI 
+>  npm install semantic-ui-react semantic-ui-css
+
+6
 pour l enregistrement des Paris je passe par un PariDTO qui n'a pas d'Id 
 en effet Identity etant 

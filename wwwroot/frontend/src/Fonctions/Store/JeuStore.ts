@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, reaction } from "mobx";
 import Jeu from "../../Modele/Jeu";
 import agent from "../Api/agent";
 
@@ -15,6 +15,23 @@ export default class JeuStore {
   //mobx constructor
   constructor() {
     makeAutoObservable(this);
+
+    // reaction(
+    //   ()=>this.matchSelected,
+    //   match=> {
+    //     if(match==undefined){
+    //       console.log("state of matchselected changed")
+    //       this.matchSelected = JSON.parse(localStorage.getItem("match")!);
+          
+    //   }else{
+    //     localStorage.setItem("matchId",match.id.toString())
+    //   }
+    // })
+  }
+
+  getMatchSelected = () =>{
+    this.matchSelected = JSON.parse(localStorage.getItem("match")!);
+    return this.matchSelected;
   }
   //On va chercher la liste des Match et on le garde dans le store
   // listJeux est en charge de garder les matchs
@@ -43,7 +60,7 @@ export default class JeuStore {
         this.setLoading(false);
       }
     }
-  };
+  }
 
   get jeuxByDate() {
     return Array.from(this.listJeux.values()).sort(
@@ -52,13 +69,15 @@ export default class JeuStore {
   }
   setLoading = (state: boolean) => {
     this.loading = state;
-  };
+  }
   setJeu = (jeu: Jeu) => {
     jeu.dateRencontre = new Date(jeu.dateRencontre!);
     this.listJeux.set(jeu.id, jeu);
-    this.matchSelected = this.listJeux.get(jeu.id);
-  };
+    
+    // console.log("dans le setJeu "+JSON.stringify(this.matchSelected) )
+  }
   setJeuById = (id: number) => {
     this.matchSelected = this.listJeux.get(id);
-  };
+    localStorage.setItem("match",JSON.stringify(this.matchSelected))
+  }
 }

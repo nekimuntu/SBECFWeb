@@ -1,5 +1,6 @@
 ﻿
-import React from 'react'
+
+import React, { useEffect } from 'react'
 
 import { observer } from 'mobx-react-lite'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -8,11 +9,25 @@ import { ToastContainer } from 'react-toastify'
 import SBHeader from '../Composants/Header'
 import SBMenu from '../Composants/Menu'
 import ListeJeux from '../Composants/Jeu/ListJeux'
+import { useStore } from '../Fonctions/Store/store'
+import LoadingComponent from '../Composants/LoadingComponent'
+import ModalContainer from '../Composants/Modal/ModalContainer'
 
 const Entree = () => {
     const location = useLocation();
+    const {usersStore,commonStore} = useStore();
+    useEffect(()=>{
+        if(commonStore.token){
+            usersStore.getUser().finally(()=>commonStore.setAppLoaded());
+        }else{
+            commonStore.setAppLoaded();
+        }
+    },[commonStore,usersStore])
+
+    // if(!commonStore.appLoaded) return <LoadingComponent inverted={false} content='Chargement de l application ...' />
     return (
         <>
+            <ModalContainer />
             {/* Il faut aussi declarer le css dans index.tsx */}
             <ToastContainer key={'notify'} position='bottom-right' theme='colored' />
 

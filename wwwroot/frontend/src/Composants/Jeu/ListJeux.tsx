@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react'
+import React,{useEffect} from 'react';
 import { Icon, Label, Menu, Table } from 'semantic-ui-react'
 import { useStore } from '../../Fonctions/Store/store'
 import { observer } from 'mobx-react-lite';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams} from 'react-router-dom'
 import LoadingComponent from '../LoadingComponent';
 
 
@@ -14,10 +14,11 @@ export default observer(function ListeJeux({jeuDuJour}:Props) {
     const { jeuStore } = useStore();
     useEffect(() => {
         jeuStore.afficheMatchDuJour = jeuDuJour
-        jeuStore.loadJeux();
+        if(jeuStore.listJeux.size<=0)
+            jeuStore.loadJeux();
     }, [jeuStore]);
     const { jeuxByDate } = jeuStore;
-    const location  = useParams();
+    // const location  = useParams();
     function selectJeu(id: number): void {
         jeuStore.setJeuById(id);
     }
@@ -34,7 +35,7 @@ export default observer(function ListeJeux({jeuDuJour}:Props) {
                     <Table.HeaderCell>Status</Table.HeaderCell>
                 </Table.Row>
             </Table.Header>
-            <React.StrictMode>
+            
                 <Table.Body>
                     {jeuxByDate.map(jeu => {                        
                             return (<Table.Row key={jeu.id} >
@@ -50,7 +51,7 @@ export default observer(function ListeJeux({jeuDuJour}:Props) {
                     }
                     )}
                 </Table.Body>
-            </React.StrictMode>
+            
             {/* Footer */}
             <Table.Footer>
                 <Table.Row>
@@ -73,3 +74,6 @@ export default observer(function ListeJeux({jeuDuJour}:Props) {
         </Table>
     );
 });
+
+
+

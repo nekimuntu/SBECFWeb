@@ -11,6 +11,7 @@ import Utilisateur from "../../Modele/Utilisateur"
 import Equipe from "../../Modele/Equipe"
 import NotValidated from "../../Fonctions/Error/NotValidated"
 import PariDTO from "../../Modele/PariDTO"
+import { toast } from "react-toastify"
 
 interface Props {
     jeu: Jeu,
@@ -20,7 +21,7 @@ interface Props {
 }
 
 export default observer(function SideBarMiseForm(props: Props) {
-    const { pariStore, modalStore } = useStore();
+    const { pariStore, modalStore,usersStore } = useStore();
     const { jeu, equipes, pariId } = { ...props }
 
 
@@ -29,18 +30,19 @@ export default observer(function SideBarMiseForm(props: Props) {
             id: pariStore.firstPari ? null : pariStore.lePari?.id!,
             matchId: jeu.id,
             jeu: jeu,
-            userId: pariStore.firstPari ? "test" : pariStore.lePari?.userId!,
+            userId: pariStore.firstPari ? "" : pariStore.lePari?.userId!,
             utilisateur: pariStore.firstPari ? undefined : pariStore.lePari?.utilisateur,
             montantMise: pariStore.firstPari ? 0 : pariStore.lePari?.montantMise!,
             montantGagne: 0,
-            dateMise: new Date(),
+            dateMise: pariStore.firstPari ? new Date() : pariStore.lePari?.dateMise!,
             equipeId: pariStore.firstPari ? 0 : pariStore.lePari?.equipeId!,
             equipe: pariStore.firstPari ? undefined : pariStore.lePari?.equipe!,
         }
     );
 
     useEffect(() => {
-        pariStore.getPariByMatch(jeu.id);
+        if(usersStore.isLoggedIn)
+            pariStore.getPariByMatch(jeu.id,usersStore.user?.email!);
         if (!pariStore.firstPari)
             setPari(pariStore.lePari!)
     }, [pariStore, pariStore.firstPari]);
@@ -64,25 +66,26 @@ export default observer(function SideBarMiseForm(props: Props) {
             dateMise: pari.dateMise,
             equipeId: pari.equipeId
         }
-        console.log(pariDto);
+        // console.log(pariDto);
+        if (!boxIsSelected) {
+            
+            toast.warning("Veuillez selectionner une equipe");
+            // modalStore.openModal(<NotValidated composant={"Equipe"} />)
+        }
         //eslint-disable-next-line no-restricted-globals
         if (confirm("Confirmer la mise?")) {
             if (pariStore.firstPari) {
                 pariStore.setSubmit(true);
-                pariStore.savePari(undefined,pariDto);
+                pariStore.savePari(undefined,pariDto).catch(err=>toast.error(err));
             }
         }
-        if (!boxIsSelected) {
-            console.log(boxIsSelected)
-            modalStore.openModal(<NotValidated composant={"Equipe"} />)
-        }
+        
     }
-
 
     return (<>
         
         <Segment inverted>
-            <Header textAlign="center" content="Miser sur votre equipe" />
+            <Header content="Miser sur votre equipe" />
             <Formik
                 validationSchema={validationSchema}
                 initialValues={statePari}
@@ -91,20 +94,17 @@ export default observer(function SideBarMiseForm(props: Props) {
                 {({ handleSubmit, isValid, isSubmitting, dirty, errors }) =>
                 (
                     <Form inverted className="ui form" onSubmit={handleSubmit} >
-
                         <MyTextInput name="montantMise" label='Mise ' placeholder='Mise' />
-
                         <Label>
-                            <Field id={2} value={`${jeu.equipeBId}`} type="radio" name="equipeId" /> {jeu.equipeB.nom}
+                            <Field id={2} onClick={boxSelected} value={`${jeu.equipeBId}`} type="radio" name="equipeId" /> {jeu.equipeB.nom}
                         </Label>
                         <Label  >
-                            <Field id={1} value={`${jeu.equipeBId}`} type="radio" name="equipeId" /> {jeu.equipeA.nom}
+                            <Field id={1} onClick={boxSelected} value={`${jeu.equipeBId}`} type="radio" name="equipeId" /> {jeu.equipeA.nom}
                         </Label>
-
                         {errors.equipeId
                             ? (<Label basic color='red'>{errors.equipeId}</Label>)
-                            : null}
-
+                            : null
+                        }
                         <Button disabled={!isValid || !dirty}
                             loading={pariStore.loading}
                             positive type='submit' >

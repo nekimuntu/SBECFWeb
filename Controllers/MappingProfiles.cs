@@ -18,6 +18,7 @@ namespace SuperBowlWeb.Controllers
             CreateMap<Joueur, JoueurDTO>()                 
                 .ForMember(x => x.Pays, s => s.MapFrom(o => o.Pays.Name));
             CreateMap<Utilisateur, UserDTO>();
+            CreateMap<Pari, PariDTO>();
 
 
         }

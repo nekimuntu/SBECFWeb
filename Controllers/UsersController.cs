@@ -68,9 +68,16 @@ namespace SuperBowlWeb.Controllers
         [Route("/api/register")]
         public async Task<ActionResult<UserDTO>> Register(RegisterDTO userRegister)
         {
-            if (await _context.Users.AnyAsync(x=>x.Email==userRegister.Email) || await _context.Users.AnyAsync(x=>x.UserName==userRegister.UserName))
+            if (await _context.Users.AnyAsync(x => x.UserName == userRegister.UserName))
             {
-                return Unauthorized("Utilisateur deja enregistre");
+                ModelState.AddModelError("username", "Username taken");
+                return ValidationProblem(ModelState);
+                // return BadRequest("Username already taken");
+            }
+            if (await _context.Users.AnyAsync(x => x.Email == userRegister.Email))
+            {
+                ModelState.AddModelError("email", "Email already taken");
+                return ValidationProblem(ModelState);
             }
             var user = new Utilisateur
             {
@@ -133,6 +140,7 @@ namespace SuperBowlWeb.Controllers
             return Ok(retour);
         }
 
+        
         private UserDTO CreateUserDto(Utilisateur user)
         {
             var mapper = _mapper.ConfigurationProvider.CreateMapper();

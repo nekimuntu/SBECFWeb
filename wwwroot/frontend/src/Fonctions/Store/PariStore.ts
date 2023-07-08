@@ -22,15 +22,7 @@ export default class PariStore {
 
   //Getteur
   
-  getLastId = async ()=>{
-    try{
-      var idParis = await agent.paris.getId();
-      console.log(idParis);
-      this.setPariId(idParis);
-    }catch(error){
-      throw error;
-    }
-  }
+  
   //fonction pour l US .. afficher un diagramme des paris
   getListPariByUser = async (userId: string) => {
     //peut etre qu il faudra une methode pour metre a jour loading
@@ -49,18 +41,18 @@ export default class PariStore {
   };
 
   //fonction pour retrouver le pari sur un match du user
-  getPariByMatch = async (matchId: number) => {
+  getPariByMatch = async (matchId: number,email:string) => {
     this.setLoading(true);
     try {
       //check in database what we got
-      let aParis = await agent.paris.details(matchId);
+      let aParis = await agent.paris.details(matchId,email);
       if(aParis!==null){
         this.setPari(aParis);
         this.setFirstPari(false);
       }
       
     } catch (error) {
-        //toast.error("aucune mise pour le moment...")
+        toast.info("aucune mise pour le moment...")
     }
     finally{
         this.setLoading(false)
