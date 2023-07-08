@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SuperBowlWeb.Models;
+using SuperBowlWeb.Models.Constantes;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SuperBowlWeb.Data
@@ -44,7 +45,7 @@ namespace SuperBowlWeb.Data
                         Nom = "NagoSeed",
                         Prenom = "YannickSeed",
                         Email="nago@test.com",
-                        RoleUtilisateur=true
+                        Role=(int)RoleUser.Utilisateur
 
                     },
                     new Utilisateur {
@@ -52,7 +53,7 @@ namespace SuperBowlWeb.Data
                         Nom = "kimuntuSeed",
                         Prenom = "kongoSeed",
                         Email="kimuntu@test.com",
-                        RoleUtilisateur=true
+                        Role=(int)RoleUser.Utilisateur
 
                     },
                     new Utilisateur {
@@ -60,7 +61,7 @@ namespace SuperBowlWeb.Data
                         Nom = "Comment",
                         Prenom = "PrenomSeed",
                         Email="comment@test.com",
-                        RoleCommentateur=true
+                        Role=(int)RoleUser.Commentateur
 
                     },
                     new Utilisateur {
@@ -69,7 +70,7 @@ namespace SuperBowlWeb.Data
                         Nom = "Admin",
                         Prenom = "Prenom",
                         Email="admin@test.com",
-                        RoleCommentateur=true
+                        Role= (int)RoleUser.Admin
 
                     }
                 };

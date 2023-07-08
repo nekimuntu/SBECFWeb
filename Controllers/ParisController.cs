@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SuperBowlWeb.Controllers.DTO;
 using SuperBowlWeb.Data;
 using SuperBowlWeb.Models;
 
@@ -15,10 +20,14 @@ namespace SuperBowlWeb.Controllers
     public class ParisController : BaseApiController
     {
         private readonly SuperBowlWebContext _context;
+        private readonly Microsoft.AspNetCore.Identity.UserManager<Utilisateur> _userManager;
+        private readonly IMapper _mapper;
 
-        public ParisController(SuperBowlWebContext context)
+        public ParisController(SuperBowlWebContext context,UserManager<Utilisateur> userManager, IMapper mapper)
         {
             _context = context;
+            _userManager = userManager;
+            _mapper = mapper;
         }
 
         // GET: List de tous les Paris
@@ -46,13 +55,22 @@ namespace SuperBowlWeb.Controllers
         }
 
         // GET: Le Paris d un utilisateur sur ce match
-        [HttpGet("bymatch/{matchId}")]
-        public async Task<IActionResult> getByMatchId(int matchId)
+        [HttpGet("{email}/bymatch/{matchId}/")]
+        public async Task<IActionResult> getByMatchId(int matchId,string email)
         {
             if (_context.Pari.Any())
             {
-                var pariUser = await _context.Pari.Where(x => x.MatchId == matchId).Include(x => x.EquipeMise).Include(x=>x.Jeu).ToListAsync();
-                return Ok(pariUser);
+                if(email != null)
+                {
+                    var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+                    var pariUser = await _context.Pari.Where(x => x.MatchId == matchId)
+                                                        .Where(x=>x.UserId==user.Id)
+                                                        .Include(x => x.EquipeMise)
+                                                        .Include(x => x.Jeu).ToListAsync();
+                    return Ok(pariUser);
+                }
+                //var pariUser = await _context.Pari.Where(x => x.MatchId == matchId).Include(x => x.EquipeMise).Include(x=>x.Jeu).ToListAsync();
+               
             }
             return NotFound("Pas encore de paris enregistre");
         }
@@ -62,130 +80,24 @@ namespace SuperBowlWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(pari);
-                await _context.SaveChangesAsync();
-                return Ok(1);
+                var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+                pari.UserId = user.Id;
+                
+                _context.Pari.Add(pari);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return Ok(1);
+                }catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);  
+                }
             }
 
             return NotFound(1);
         }
 
-        // GET: Paris/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null || _context.Pari == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var pari = await _context.Pari
-        //        .Include(p => p.EquipeMise)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (pari == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(pari);
-        //}
-
-
-        // POST: Paris/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-
-
-        //// GET: Paris/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null || _context.Pari == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var pari = await _context.Pari.FindAsync(id);
-        //    if (pari == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    ViewData["EquipeId"] = new SelectList(_context.Equipe, "Id", "Id", pari.EquipeId);
-        //    return View(pari);
-        //}
-
-        //// POST: Paris/Edit/5
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,MatchId,UserId,MontantMise,EquipeId")] Pari pari)
-        //{
-        //    if (id != pari.Id)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(pari);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!PariExists(pari.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["EquipeId"] = new SelectList(_context.Equipe, "Id", "Id", pari.EquipeId);
-        //    return View(pari);
-        //}
-
-        //// GET: Paris/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null || _context.Pari == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var pari = await _context.Pari
-        //        .Include(p => p.EquipeMise)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (pari == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(pari);
-        //}
-
-        //// POST: Paris/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    if (_context.Pari == null)
-        //    {
-        //        return Problem("Entity set 'SuperBowlWebContext.Pari'  is null.");
-        //    }
-        //    var pari = await _context.Pari.FindAsync(id);
-        //    if (pari != null)
-        //    {
-        //        _context.Pari.Remove(pari);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
+     
         private bool PariExists(int id)
         {
           return (_context.Pari?.Any(e => e.Id == id)).GetValueOrDefault();

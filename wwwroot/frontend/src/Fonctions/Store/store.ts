@@ -4,13 +4,15 @@ import { useContext,createContext } from "react";
 import ModalStore from "./ModalStore";
 import UsersStore from "./UsersStore";
 import PariStore from "./PariStore";
+import CommonStore from "./CommonStore";
 
 interface Store{
     jeuStore:JeuStore,
     equipeStore:EquipeStore,
     modalStore:ModalStore,
     usersStore:UsersStore,
-    pariStore:PariStore
+    pariStore:PariStore,
+    commonStore:CommonStore
 }
 
 export const store : Store = {
@@ -19,6 +21,7 @@ export const store : Store = {
     modalStore: new ModalStore(),
     usersStore: new UsersStore(),
     pariStore:new PariStore(),
+    commonStore:new CommonStore()
 }
 
 export const StoreContext = createContext(store);
