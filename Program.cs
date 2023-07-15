@@ -17,7 +17,7 @@ builder.Services.AddIdentityServices(builder.Configuration);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<SuperBowlWebContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SuperBowlWebContext") ?? throw new InvalidOperationException("Connection string 'SuperBowlWebContext' not found.")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("SuperBowlWebContext") ?? throw new InvalidOperationException("Connection string 'SuperBowlWebContext' not found.")));
 //Je rajoute ca pour faire une API
 builder.Services.AddEndpointsApiExplorer();
 //Swagger pour un compte rendu des API 
@@ -32,7 +32,7 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("CORSpolicySBB", policy =>
     {
-        policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+        policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:7526");
     });
 });
 
@@ -82,5 +82,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
     );
+app.MapFallbackToController("index","FallBack");
 
 app.Run();
