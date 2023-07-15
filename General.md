@@ -25,5 +25,24 @@ Pour Seeder des utilisateur on a besoin d injecter un UserManager<Utilisateur> d
 
 
 
+------------------- DEPLOIEMENT ----------------------
+
+Pour le deploiment j utilise Docker 
+Une fois installe on peux verifier en ligne de commande > Docker
+
+Pour creer le container de PostgreSql 
+> docker run --name postgresDB -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=mysecretpassword -d postgres -p 5432:5432
+
+on install la librairie de postgresql 
+
+--> Npgsql.EntityFrameworkCore.PostgreSQL (version 7.0.4 dans mon cas)
+
+appsetting 
+
+on change la connection string "Server=localhost:5432; User Id=admin; Password=mysecretpassword; Database=superbowl"
+
+Changer le program.cs modifier:
+builder.Services.AddDbContext<SuperBowlWebContext>(options => options.UseNpgsql ...}
+
 
 

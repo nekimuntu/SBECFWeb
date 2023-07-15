@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using SuperBowlWeb.Controllers.DTO;
 using SuperBowlWeb.Data;
-using SuperBowlWeb.Migrations;
 using SuperBowlWeb.Models;
 
 namespace SuperBowlWeb.Controllers

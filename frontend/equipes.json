@@ -1,0 +1,45 @@
+
+    {
+        
+        "nom": "TESTmorroco",
+        "cote": 3,
+        "paysId": 73,
+        "pays": "France",
+        "urLlogo": "/assets/pict/nologo.png",
+        "iso": "FR",
+        "joueurs": [
+            {
+                
+                "nom": "Iskimiel",
+                "prenom": "nganou",
+                "numero": 1,
+                "equipeId": 1,
+                "pays": "France"
+            },
+            {
+                
+                "nom": "Nzimba",
+                "prenom": "ola",
+                "numero": 2,
+                "equipeId": 1,
+                "pays": "France"
+            },
+            {
+                
+                "nom": "Metatron",
+                "prenom": "Rafael",
+                "numero": 2,
+                "equipeId": 1,
+                "pays": "France"
+            },
+            {
+                
+                "nom": "Azazel",
+                "prenom": "Mika",
+                "numero": 2,
+                "equipeId": 1,
+                "pays": "France"
+            }
+        ]
+    }
+    

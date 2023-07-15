@@ -23,8 +23,18 @@ namespace SuperBowlWeb.Controllers
             _context = context;
             _mapper = mapper;
         }
+
+        //[AllowAnonymous]
+        //[HttpPost]
+        //public async Task<ActionResult<Jeu>> CreateMatch(Jeu jeu)
+        //{ 
+            
+        //}
+
+
+
+        // GET: Jeux
         [AllowAnonymous]
-        // GET: Jeux        
         [HttpGet]
         public async Task<IActionResult> List()
         {
